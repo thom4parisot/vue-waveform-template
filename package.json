@@ -2,7 +2,7 @@
   "scripts": {
     "start": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
-    "test": "echo \"This template does not include a test runner by default.\" && exit 1"
+    "test": "exit 0"
   },
   "devDependencies": {
     "@vue/cli": "^4.5.13",
