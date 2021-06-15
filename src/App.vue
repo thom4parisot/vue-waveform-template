@@ -23,7 +23,7 @@ h1 + p {
 </style>
 
 <script>
-import Waveform from './waveform.vue'
+import Waveform from './components/Waveform.vue'
 
 export default {
   components: {
