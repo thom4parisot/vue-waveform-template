@@ -4,39 +4,39 @@ export default {
   namespaced: true,
 
   state: () => ({
+    // An optional intro track
+    introTrack: null,
+    // An optional extro track
+    extroTrack: null,
+    //
+    currentTime: 0.00,
+    // Main track events
     cues: [
       {
         editable: true,
         time: 0.10,
-        labelText: 'Début',
+        labelText: 'Start',
         id: 'start',
         color: 'hsl(171, 100%, 41%)'
       },
       {
         editable: true,
         time: 3.00,
-        labelText: 'Fondu entrant',
+        labelText: 'Fade in',
         id: 'fade-in',
         color: 'hsl(217, 71%, 53%)'
       },
       {
         editable: true,
         time: 0.00,
-        labelText: 'Fondu sortant',
+        labelText: 'Fade out',
         id: 'fade-out',
         color: 'hsl(48, 100%, 67%)'
       },
       {
         editable: true,
-        time: 6.00,
-        labelText: 'Mix',
-        id: 'mix',
-        color: 'hsl(0, 0%, 48%) 	'
-      },
-      {
-        editable: true,
         time: 12.00,
-        labelText: 'Fin',
+        labelText: 'End',
         id: 'end',
         color: 'hsl(48, 100%, 67%)'
       }
@@ -44,8 +44,17 @@ export default {
   }),
 
   getters: {
+    currentTime (state) {
+      return state.currentTime
+    },
+    introTrack (state) {
+      return state.introTrack
+    },
+    extroTrack (state) {
+      return state.extroTrack
+    },
     cues (state) {
-      return state.cues
+      return state.cues.sort((a, b) => a.time - b.time)
     }
   },
 
@@ -57,6 +66,19 @@ export default {
       Object.entries(payload).forEach(([key, value]) => {
         Vue.set(state.cues[index], key, value)
       })
+    },
+
+    cueAdd (state, payload) {
+      state.cues = [...state.cues, payload]
+    },
+
+    // We can use `intro` or `extro` as a Type
+    setTrack(state, { type, src }) {
+      state[`${type}Track`] = src
+    },
+
+    setCurrentTime(state, time) {
+      state.currentTime = time
     }
   }
 }
