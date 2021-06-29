@@ -48,7 +48,7 @@
     <ul class="timed-events">
       <li v-for="point in points" :key="point.id" class="point" :style="'--bg-color: ' + point.color">
         <header>
-          <strong class="point__title clickable" @click="selectPoint(point.id)">{{ point.labelText }}</strong>
+          <strong class="point__title clickable" @click="setPointAtCurrentTime(point.id)">{{ point.labelText }}</strong>
 
           <span v-if="point.removable" @click.stop="removePoint(point.id)" aria-label="Delete">🗑</span>
         </header>
@@ -116,6 +116,14 @@ export default {
   methods: {
     play (ref) {
       this.$refs[ref].play()
+    },
+
+    setPointAtCurrentTime (id) {
+      const time = this._peaks.player.getCurrentTime()
+      const point = this._peaks.points.getPoint(id)
+
+      point.update({ time, editable: true })
+      this.$store.commit('programme/updatePoint', { id, time })
     },
 
     onWaveformLoaded (error, peaks) {
