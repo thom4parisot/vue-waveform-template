@@ -235,4 +235,8 @@ export default {
 .point time {
     padding: .5em .25em;
 }
+
+.point time {
+  font-family: monospace;
+}
 </style>

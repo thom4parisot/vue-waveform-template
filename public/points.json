@@ -3,31 +3,31 @@
     "time": 0.1,
     "labelText": "Start",
     "id": "start",
-    "color": "hsl(171, 100%, 41%)"
+    "color": "#e4cde0"
   },
   {
     "time": 3.0,
     "labelText": "Fade in",
     "id": "fade-in",
-    "color": "hsl(217, 71%, 53%)"
+    "color": "#ffc9d8"
   },
   {
-    "time": 0.0,
+    "time": 23.0,
     "labelText": "Fade out",
     "id": "fade-out",
-    "color": "hsl(48, 100%, 67%)"
+    "color": "#ffdc8a"
   },
   {
     "time": 24.0,
     "labelText": "Mix",
     "id": "mix",
-    "color": "#95a0a8",
+    "color": "#cccccc",
     "removable": true
   },
   {
-    "time": 30.08,
+    "time": 30.8,
     "labelText": "End",
     "id": "end",
-    "color": "hsl(48, 100%, 67%)"
+    "color": "#f9f871"
   }
 ]
