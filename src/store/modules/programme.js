@@ -11,36 +11,7 @@ export default {
     //
     currentTime: 0.00,
     // Main track events
-    cues: [
-      {
-        editable: true,
-        time: 0.10,
-        labelText: 'Start',
-        id: 'start',
-        color: 'hsl(171, 100%, 41%)'
-      },
-      {
-        editable: true,
-        time: 3.00,
-        labelText: 'Fade in',
-        id: 'fade-in',
-        color: 'hsl(217, 71%, 53%)'
-      },
-      {
-        editable: true,
-        time: 0.00,
-        labelText: 'Fade out',
-        id: 'fade-out',
-        color: 'hsl(48, 100%, 67%)'
-      },
-      {
-        editable: true,
-        time: 12.00,
-        labelText: 'End',
-        id: 'end',
-        color: 'hsl(48, 100%, 67%)'
-      }
-    ]
+    points: []
   }),
 
   getters: {
@@ -53,23 +24,33 @@ export default {
     extroTrack (state) {
       return state.extroTrack
     },
-    cues (state) {
-      return state.cues.sort((a, b) => a.time - b.time)
+    points (state) {
+      return state.points.sort((a, b) => a.time - b.time)
     }
   },
 
   mutations: {
     // Find and merge an existing cue with newly provided data
-    cueUpdate (state, payload) {
-      const index = state.cues.findIndex(({ id }) => id === payload.id)
+    updatePoint (state, payload) {
+      const index = state.points.findIndex(({ id }) => id === payload.id)
 
       Object.entries(payload).forEach(([key, value]) => {
-        Vue.set(state.cues[index], key, value)
+        Vue.set(state.points[index], key, value)
       })
     },
 
-    cueAdd (state, payload) {
-      state.cues = [...state.cues, payload]
+    removePoint (state, id) {
+      const index = state.points.findIndex((point) => point.id === id)
+
+      Vue.delete(state.points, index)
+    },
+
+    addPoint (state, point) {
+      state.points = [...state.points, point]
+    },
+
+    addPoints (state, points) {
+      state.points = [...state.points, ...points]
     },
 
     // We can use `intro` or `extro` as a Type

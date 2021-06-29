@@ -4,15 +4,21 @@
     <p>with Vue.js + Peaks.js</p>
 
     <main>
-      <waveform dataFile="test.dat" mainTrack="test.mp3" :transitionTracks="['transitions/Jingle - labo Vestaradio.mp3', 'transitions/jingle vestaradio.mp3']" />
+      <waveform ref="waveform" dataFile="test.dat" mainTrack="test.mp3" :transitionTracks="['transitions/Jingle - labo Vestaradio.mp3', 'transitions/jingle vestaradio.mp3']" />
+
+      <ul class="playback">
+        <li><button @click="play('introTrack')" :disabled="!introTrack">Play intro</button></li>
+        <li><button @click="play('mainTrack')"><span aria-hidden>▶</span> Play</button></li>
+        <li><button @click="play('extroTrack')" :disabled="!extroTrack">Play extro/mix</button></li>
+      </ul>
 
       <fieldset>
-        <legend>Add New Cue</legend>
+        <legend>Add New Point</legend>
 
-        <form @submit.prevent="createNewCue">
+        <form @submit.prevent="createNewPoint">
           <label>
             Name
-            <input type="text" required v-model="cueName" />
+            <input type="text" required v-model="pointName" />
           </label>
 
           <button>Add at current time</button>
@@ -32,6 +38,17 @@ body {
 h1 + p {
   margin-top: -1em;
   margin-bottom: 2em;
+}
+
+.playback {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 1.5em 0;
+}
+.playback button {
+  margin: 0 .5em;
 }
 </style>
 
@@ -55,26 +72,38 @@ export default {
 
   data () {
     return {
-      cueName: ''
+      pointName: ''
     }
   },
 
   computed: {
-    ...mapGetters('programme', ['currentTime']),
+    ...mapGetters('programme', ['currentTime', 'introTrack', 'extroTrack']),
   },
 
   methods: {
-    createNewCue () {
-      this.$store.commit('programme/cueAdd', {
-        labelText: this.cueName,
-        id: slugify(this.cueName),
+    // This trick enables us to trigger the `play()` method within the `Waveform.vue` component
+    play (track) {
+      this.$refs.waveform.play(track)
+    },
+
+    createNewPoint () {
+      this.$store.commit('programme/addPoint', {
+        labelText: this.pointName,
+        id: slugify(this.pointName),
         color: randomColor(),
         time: this.currentTime,
-        editable: true
+        editable: true,
+        removable: true
       })
 
-      this.cueName = ''
+      this.pointName = ''
     },
+  },
+
+  created () {
+    fetch('./points.json')
+      .then(response => response.json())
+      .then(points => this.$store.commit('programme/addPoints', points))
   }
 }
 

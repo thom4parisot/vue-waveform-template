@@ -5,12 +5,13 @@
         <p><strong>Intro Track</strong></p>
 
         <select :value="introTrack" @change="setTrack({ type: 'intro', src: $event.target.value })">
+          <option value="" />
           <option v-for="(track, i) in transitionTracks" :key="i">
             {{ track }}
           </option>
         </select>
 
-        <audio v-if="introTrack" controls>
+        <audio ref="introTrack" v-if="introTrack">
           <source :src="introTrack" type="audio/mpeg">
         </audio>
       </li>
@@ -26,12 +27,13 @@
         <p><strong>Extro Track</strong></p>
 
         <select :value="extroTrack" @change="setTrack({ type: 'extro', src: $event.target.value })">
+          <option value="" />
           <option v-for="(track, i) in transitionTracks" :key="i">
             {{ track }}
           </option>
         </select>
 
-        <audio ref="extroTrack">
+        <audio ref="extroTrack" v-if="extroTrack">
           <source :src="extroTrack" type="audio/mpeg">
         </audio>
       </li>
@@ -44,12 +46,14 @@
     </div>
 
     <ul class="timed-events">
-      <li v-for="cue in cues" :key="cue.id" class="cue" :style="'--bg-color: ' + cue.color">
+      <li v-for="point in points" :key="point.id" class="point" :style="'--bg-color: ' + point.color">
         <header>
-          <strong class="cue__title">{{ cue.labelText }}</strong>
+          <strong class="point__title clickable" @click="selectPoint(point.id)">{{ point.labelText }}</strong>
+
+          <span v-if="point.removable" @click.stop="removePoint(point.id)" aria-label="Delete">🗑</span>
         </header>
 
-        <time :datetime="cue.time">{{ cue.time }}</time>
+        <time :datetime="point.time">{{ point.time }}</time>
       </li>
     </ul>
   </div>
@@ -81,31 +85,28 @@ export default {
       // I make the decision to not track the Peaks instance as a reactive property
       // Vue recommend to store only "plain value", and Peaks isn't
       // Cf. https://vuejs.org/v2/api/#data
-      // _peaks: null,
+      _peaks: null,
     }
   },
 
   // Temporal data (points and segments) are store in a store (Vuex for instance)
   // We will subscribe to its changes to keep Peaks in sync with our reactive data
   computed: {
-    ...mapGetters('programme', ['cues', 'introTrack', 'extroTrack'])
+    ...mapGetters('programme', ['points', 'introTrack', 'extroTrack'])
   },
 
   mounted () {
-    this.$nextTick(() => {
-      // We store the Peaks instance when the DOM is ready
-      this._peaks = Peaks.init({
-        ...defaultOptions,
-        mediaElement: this.$refs.mainTrack,
-        dataUri: {
-          arraybuffer: this.$props.dataFile
-        },
-        containers: {
-          overview: this.$refs.overview,
-          zoomview: this.$refs.zoomview
-        }
-      }, this.onWaveformLoaded)
-    })
+    this.$nextTick(() => Peaks.init({
+      ...defaultOptions,
+      mediaElement: this.$refs.mainTrack,
+      dataUri: {
+        arraybuffer: this.$props.dataFile
+      },
+      containers: {
+        overview: this.$refs.overview,
+        zoomview: this.$refs.zoomview
+      }
+    }, this.onWaveformLoaded))
   },
 
   destroyed () {
@@ -113,18 +114,28 @@ export default {
   },
 
   methods: {
+    play (ref) {
+      this.$refs[ref].play()
+    },
+
     onWaveformLoaded (error, peaks) {
       if (error) {
         throw new Error(error)
       }
 
-      // We add store-based events into peak on load
-      this.cues.forEach(cue => peaks.points.add(cue))
+      // We store the Peaks instance when the DOM is ready
+      this._peaks = peaks
 
-      // We listen to Peaks points within the Vue.js app
+      // We add store-based events into peak on load
+      this.points.forEach(point => peaks.points.add({
+        ...point,
+        editable: true
+      }))
+
+      // We listen to Peaks points change within the Vue.js app
       peaks.on('points.dragmove', ({ id, time:newTime }) => {
-        const time = parseFloat(newTime.toFixed(4))
-        this.$store.commit('programme/cueUpdate', { id, time })
+        const time = parseFloat(newTime.toFixed(3))
+        this.$store.commit('programme/updatePoint', { id, time })
       })
 
       // We keep track of the current time
@@ -133,22 +144,36 @@ export default {
       })
 
       // When a new point is added, we sync it back to Peaks
-      this.$store.subscribe(({ type, payload }, state) => {
-        if (type === 'programme/cueAdd') {
+      this.$store.subscribe(({ type, payload }) => {
+        if (['programme/addPoint', 'programme/addPoints'].includes(type)) {
           peaks.points.add(payload)
+        }
+      })
+
+      // When a new point is remove, we sync it back to Peaks
+      this.$store.subscribe(({ type, payload: pointId }) => {
+        if (type === 'programme/removePoint') {
+          peaks.points.removeById(pointId)
         }
       })
     },
 
-    ...mapMutations('programme', ['setTrack'])
+    selectPoint (id) {
+      const { time } = this._peaks.points.getPoint(id)
+      this._peaks.player.seek(time)
+    },
+
+    ...mapMutations('programme', ['setTrack', 'removePoint'])
   }
 }
 </script>
 
 <style scoped>
 .tracks {
+  display: flex;
+  justify-content: space-between;
   list-style: none;
-  margin-left: 1.5em;
+  margin-left: 0;
   padding: 0;
 }
 .tracks > li {
@@ -178,21 +203,36 @@ export default {
   flex: 0 0 33%;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
 .timed-events {
   display: flex;
   list-style: none;
   justify-content: center;
   gap: 1em;
-  margin: 1em 2em;
+  margin: 1em 0;
   padding: 0;
 }
 
-.cue {
+.point {
   flex: 1 0 auto;
   border: 1px solid var(--bg-color);
 }
 
-.cue > header {
+.point > header {
   background-color: var(--bg-color);
+  display: flex;
+  justify-content: space-between;
+}
+
+.point > header .point__title {
+  flex-grow: 1;
+}
+
+.point > header,
+.point time {
+    padding: .5em .25em;
 }
 </style>

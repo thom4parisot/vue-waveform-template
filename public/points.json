@@ -1,0 +1,33 @@
+[
+  {
+    "time": 0.1,
+    "labelText": "Start",
+    "id": "start",
+    "color": "hsl(171, 100%, 41%)"
+  },
+  {
+    "time": 3.0,
+    "labelText": "Fade in",
+    "id": "fade-in",
+    "color": "hsl(217, 71%, 53%)"
+  },
+  {
+    "time": 0.0,
+    "labelText": "Fade out",
+    "id": "fade-out",
+    "color": "hsl(48, 100%, 67%)"
+  },
+  {
+    "time": 24.0,
+    "labelText": "Mix",
+    "id": "mix",
+    "color": "#95a0a8",
+    "removable": true
+  },
+  {
+    "time": 30.08,
+    "labelText": "End",
+    "id": "end",
+    "color": "hsl(48, 100%, 67%)"
+  }
+]
