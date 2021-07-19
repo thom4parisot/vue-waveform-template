@@ -60,10 +60,12 @@
 </template>
 
 <script>
-import Peaks from 'peaks.js';
+import { init } from 'peaks.js';
+import { PointMarker } from '../peaks/markers.js'
 import { mapGetters, mapMutations } from 'vuex';
 
 const defaultOptions = {
+  highlightOffset: 0,
   zoomWaveformColor: '#e2172d',
 }
 
@@ -96,7 +98,7 @@ export default {
   },
 
   mounted () {
-    this.$nextTick(() => Peaks.init({
+    this.$nextTick(() => init({
       ...defaultOptions,
       mediaElement: this.$refs.mainTrack,
       dataUri: {
@@ -105,7 +107,12 @@ export default {
       containers: {
         overview: this.$refs.overview,
         zoomview: this.$refs.zoomview
-      }
+      },
+      createPointMarker: (options) => new PointMarker({
+        ...options,
+        fontSize: 14,
+        fontStyle: 'bold'
+      }),
     }, this.onWaveformLoaded))
   },
 
@@ -137,7 +144,8 @@ export default {
       // We add store-based events into peak on load
       this.points.forEach(point => peaks.points.add({
         ...point,
-        editable: true
+        draggable: true,
+        lineWidth: 3
       }))
 
       // We listen to Peaks points change within the Vue.js app
@@ -164,6 +172,9 @@ export default {
           peaks.points.removeById(pointId)
         }
       })
+
+      // We remove the X-Axis in the Overview
+      peaks.views.getView('overview')._axisLayer.remove()
     },
 
     selectPoint (id) {
@@ -205,10 +216,11 @@ export default {
 
 .waveform {
   flex: 1 0 auto;
+  margin: .5em 0;
 }
 
 .waveform--small {
-  flex: 0 0 33%;
+  flex: 0 0 25%;
 }
 
 .clickable {
