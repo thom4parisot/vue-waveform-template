@@ -1,0 +1,38 @@
+[
+  {
+    "time": 0.1,
+    "labelText": "Start",
+    "id": "start",
+    "color": "#e4cde0",
+    "draggable": true
+  },
+  {
+    "time": 3.0,
+    "labelText": "Fade in",
+    "id": "fade-in",
+    "color": "#ffc9d8",
+    "draggable": true
+  },
+  {
+    "time": 23.0,
+    "labelText": "Fade out",
+    "id": "fade-out",
+    "color": "#ffdc8a",
+    "draggable": true
+  },
+  {
+    "time": 24.0,
+    "labelText": "Mix",
+    "id": "mix",
+    "color": "#cccccc",
+    "removable": true,
+    "draggable": true
+  },
+  {
+    "time": 30.8,
+    "labelText": "End",
+    "id": "end",
+    "color": "#f9f871",
+    "draggable": true
+  }
+]
