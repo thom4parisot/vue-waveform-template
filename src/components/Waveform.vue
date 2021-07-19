@@ -144,6 +144,7 @@ export default {
       // We add store-based events into peak on load
       this.points.forEach(point => peaks.points.add({
         ...point,
+        editable: true,
         draggable: true,
         lineWidth: 3
       }))
