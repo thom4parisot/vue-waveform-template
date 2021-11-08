@@ -1,4 +1,10 @@
 {
+  "name": "@oncletom/vue-waveform-template",
+  "version": "1.0.0",
+  "main": "./src/main.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "start": "vue-cli-service serve --open",
     "build": "vue-cli-service build",
@@ -9,6 +15,7 @@
     "@vue/cli-service-global": "^4.5.13"
   },
   "dependencies": {
+    "peaks": "^1.0.1",
     "peaks.js": "github:oncletom/peaks.js#feature/esm",
     "vue": "^2.6.14",
     "vuex": "^3.6.2"
